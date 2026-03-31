@@ -1,22 +1,22 @@
 function copyStoryContent(postElement, btn) {
-    // 1. "See more" බොත්තම තිබේ නම් එය ක්ලික් කිරීම
+    // 1. "See more" තිබේ නම් එය ක්ලික් කරයි
     const seeMore = postElement.querySelector('div[role="button"]');
     if (seeMore && (seeMore.innerText.toLowerCase().includes("see more") || seeMore.innerText.includes("තවත් බලන්න"))) {
         seeMore.click();
     }
 
-    // 2. විස්තරය දිග හැරෙන තෙක් සුළු වේලාවක් රැඳී සිටීම
+    // 2. ටෙක්ස්ට් එක ලෝඩ් වන තෙක් තත්පර 0.5ක් රැඳී සිටියි
     setTimeout(() => {
-        // ඔබ පින්තූරයේ පෙන්වූ නිවැරදි Class එක සහ ඒ අවට ඇති selectors
-        const textElement = postElement.querySelector('span.x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1xmvt09.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xudqn12.x3x7a5m.x6prxxf.xvq8zen.xo1l8bm.xzsf02u') 
+        // ඔබ පින්තූරයේ පෙන්වා දුන් නිවැරදි Class එක සහිත Span එක සොයයි
+        const targetClass = "x193iq5w xeuugli x13faqbe x1vvkbs x1xmvt09 x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x xudqn12 x3x7a5m x6prxxf xvq8zen xo1l8bm xzsf02u".split(" ").join(".");
+        const textElement = postElement.querySelector(`span.${targetClass}`) 
                             || postElement.querySelector('div[data-ad-preview="message"]')
-                            || postElement.querySelector('div[dir="auto"] span[dir="auto"]');
+                            || postElement.querySelector('div[dir="auto"] > span');
 
         if (textElement) {
-            // "See more" යන වචනය අඩංගු වේ නම් එය ඉවත් කර පිරිසිදු ටෙක්ස්ට් එක ලබා ගැනීම
-            let cleanText = textElement.innerText.replace(/See more|තවත් බලන්න/g, "").trim();
+            let fullText = textElement.innerText.replace(/See more|තවත් බලන්න/g, "").trim();
             
-            navigator.clipboard.writeText(cleanText).then(() => {
+            navigator.clipboard.writeText(fullText).then(() => {
                 btn.innerText = "Copied!";
                 btn.style.backgroundColor = "#28a745";
                 setTimeout(() => {
@@ -25,37 +25,41 @@ function copyStoryContent(postElement, btn) {
                 }, 2000);
             });
         } else {
-            console.log("ටෙක්ස්ට් එක සොයාගත නොහැකි විය.");
+            console.log("Story text not found.");
         }
-    }, 400); // තත්පර 0.4 ක ප්‍රමදයක්
+    }, 500);
 }
 
-function addButtons() {
-    // ප්‍රධාන පෝස්ට් පමණක් ඉලක්ක කිරීම (කමෙන්ට් මඟ හැරීම)
-    const posts = document.querySelectorAll('div[role="article"]:not(.btn-fixed)');
-    
-    posts.forEach(post => {
-        // පෝස්ට් එකක් ඇතුළේ ඇති තවත් article එකක් (කමෙන්ට් එකක්) නොවන බව තහවුරු කරගැනීම
-        if (post.closest('ul')) return; 
+function injectButtons() {
+    // Facebook පෝස්ට් එකක් ලෙස හඳුනාගත හැකි ප්‍රධාන containers
+    const posts = document.querySelectorAll('div[role="article"]:not(.btn-added)');
 
-        post.classList.add('btn-added', 'btn-fixed');
-        
+    posts.forEach(post => {
+        // ඉතා වැදගත්: කමෙන්ට් එකක් දැයි පරීක්ෂා කිරීම. 
+        // කමෙන්ට් පවතින්නේ 'ul' (unordered list) එකක් ඇතුළේය. ඒවා මඟහරින්න.
+        if (post.closest('ul[role="group"]') || post.closest('.x1n2onr6')) {
+            return; 
+        }
+
+        post.classList.add('btn-added');
+
         const copyBtn = document.createElement('button');
         copyBtn.innerText = "Copy Story";
-        copyBtn.className = "fb-copy-btn-v3";
+        copyBtn.className = "fb-main-post-btn";
         
-        copyBtn.addEventListener('click', (e) => {
+        copyBtn.onclick = (e) => {
             e.preventDefault();
             e.stopPropagation();
             copyStoryContent(post, copyBtn);
-        });
+        };
 
+        // පෝස්ට් එකේ ඉහළ කොටසට (Header) බොත්තම එක් කරයි
         post.appendChild(copyBtn);
     });
 }
 
-// Facebook එකේ පේජ් එක scroll කරන විට අලුත් පෝස්ට් වලට බොත්තම දැමීම
-const observer = new MutationObserver(addButtons);
+// පේජ් එක scroll කරන විට අලුත් පෝස්ට් සඳහා බොත්තම ඇතුළත් කිරීමට
+const observer = new MutationObserver(injectButtons);
 observer.observe(document.body, { childList: true, subtree: true });
 
-addButtons();
+injectButtons();

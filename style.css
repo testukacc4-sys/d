@@ -1,0 +1,24 @@
+.fb-copy-btn-v3 {
+    background-color: #0866FF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    right: 40px;
+    top: 12px;
+    z-index: 9999;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.fb-copy-btn-v3:hover {
+    background-color: #0056e0;
+}
+
+/* පෝස්ට් එකේ container එක */
+div[role="article"] {
+    position: relative !important;
+}

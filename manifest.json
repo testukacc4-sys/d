@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "FB Story Copier Final",
+  "version": "1.3",
+  "permissions": ["clipboardWrite"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.facebook.com/*"],
+      "js": ["content.js"],
+      "css": ["style.css"]
+    }
+  ]
+}
